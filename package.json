@@ -1,0 +1,22 @@
+{
+  "name": "schedule-optimizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "chai": "^3.3.0",
+    "chance": "^0.8.0",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.10.0"
+  },
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
+  "author": "Paul Mandel",
+  "license": "ISC"
+}
