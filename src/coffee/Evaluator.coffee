@@ -1,5 +1,3 @@
-_ = require 'lodash'
-
 class Evaluator
   constructor: (options={}) ->
     # Instructors who don't want to work on the same night
@@ -18,13 +16,18 @@ class Evaluator
     @infrequent = options.infrequent || []
 
   getDesiredCounts: (schedule, availability) ->
-    counts = availability.instructorCounts()
+    instructorCounts = availability.instructorCounts()
+    counts = Object.keys(instructorCounts).map (i) ->
+      instructorCounts[i]
 
-    totalAvailable = _.sum counts
+    totalAvailable = counts.reduce ((a, b) -> a + b), 0
     totalSlots = schedule.lessonCount() * 2
 
-    _.mapValues counts, (count) ->
-      return count * totalSlots / totalAvailable
+    output = {}
+    for instructor, count of instructorCounts
+      output[instructor] = count * totalSlots / totalAvailable
+
+    return output
 
   countsCost: (schedule, availability) ->
     actualCounts = schedule.instructorCounts()
@@ -81,7 +84,8 @@ class Evaluator
       for instructor in instructors
         continue if instructor not in sanitizedInstructors
         instructorIndex = sanitizedInstructors.indexOf instructor
-        if _.endsWith availableInstructors[instructorIndex], '?'
+        originalInstructor = availableInstructors[instructorIndex]
+        if originalInstructor[originalInstructor.length-1] is '?'
           cost += 0.5
 
     return cost
@@ -89,7 +93,7 @@ class Evaluator
   doublesCost: (schedule) ->
     cost = 0
 
-    for night in schedule.schedule
+    for night in schedule.nights
       instructors = []
       for lesson in night
         instructors = instructors.concat lesson
@@ -104,26 +108,30 @@ class Evaluator
     return cost
 
 
-  getCost: (schedule, availability, printSummary=false) ->
+  getCost: (schedule, availability, details=false) ->
     countsCost = @countsCost schedule, availability
     exclusionsCost = @exclusionsCost schedule
     juniorsMismatchCost = @juniorsMismatchCost schedule
     ifNecessaryCost = @ifNecessaryCost schedule, availability
     doublesCost = @doublesCost schedule
 
-    if printSummary
-      console.log 'Counts:', countsCost
-      console.log 'Exclusions:', exclusionsCost
-      console.log 'Junior Mismatch:', juniorsMismatchCost
-      console.log 'If Necessary:', ifNecessaryCost
-      console.log 'Doubles:', doublesCost
-
-    return countsCost +
+    total = countsCost +
       exclusionsCost +
       juniorsMismatchCost +
       ifNecessaryCost +
       doublesCost
 
+    if details
+      return {
+        total: total
+        countsCost: countsCost
+        exclusionsCost: exclusionsCost
+        juniorsMismatchCost: juniorsMismatchCost
+        ifNecessaryCost: ifNecessaryCost
+        doublesCost: doublesCost
+      }
+    else
+      return total
 
 
 module.exports = Evaluator

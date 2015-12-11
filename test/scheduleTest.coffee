@@ -1,7 +1,7 @@
 chai = require 'chai'
 chai.should()
 
-Schedule = require '../src/Schedule'
+Schedule = require '../src/coffee/Schedule'
 
 alice = 'alice'
 Alice = 'Alice'
@@ -14,19 +14,19 @@ david = 'david'
 describe 'Schedule instance', ->
   it 'should lowercase instructors', ->
     schedule = new Schedule [[[Alice]]], true
-    schedule.schedule[0][0][0].should.equal alice
+    schedule.nights[0][0][0].should.equal alice
 
   it 'should trim whitespace from instructors', ->
     schedule = new Schedule [[[alice_]]], true
-    schedule.schedule[0][0][0].should.equal alice
+    schedule.nights[0][0][0].should.equal alice
 
   it 'should trim question marks from instructors', ->
     schedule = new Schedule [[[aliceq]]], true
-    schedule.schedule[0][0][0].should.equal alice
+    schedule.nights[0][0][0].should.equal alice
 
   it 'should remove duplicate instructors for the same class', ->
     schedule = new Schedule [[[alice, alice]]]
-    schedule.schedule[0][0].length.should.equal 1
+    schedule.nights[0][0].length.should.equal 1
 
   it 'should iterate through nights', ->
     instructors = [alice, bob]
@@ -71,9 +71,10 @@ describe 'Schedule instance', ->
   it 'should limit the maximum number of instructors', ->
     maxInstructors = 1
     schedule = new Schedule( [[[alice, bob, charlie, david]]] ).createRandomSchedule 1, maxInstructors
-    schedule.schedule[0][0].length.should.be.at.most maxInstructors
+    schedule.nights[0][0].length.should.be.at.most maxInstructors
+    schedule.nights[0][0].length.should.be.at.least 1
 
   it 'should create a random schedule', ->
     schedule = new Schedule( [[[alice]]] ).createRandomSchedule 1
-    schedule.schedule[0][0][0].should.equal alice
+    schedule.nights[0][0][0].should.equal alice
 

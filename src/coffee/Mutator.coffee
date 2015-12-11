@@ -1,23 +1,19 @@
-_ = require 'lodash'
-
 Schedule = require './Schedule'
 
 class Mutator
   constructor: (@availability, @maxInstructors=2) ->
 
-  mutate: (schedule) ->
-    schedule = _.cloneDeep schedule.schedule
+  mutate: (nights) ->
+    nightIndex = Math.floor Math.random() * nights.length
+    night = nights[nightIndex]
 
-    nightIndex = _.random 0, schedule.length-1
-    night = schedule[nightIndex]
-
-    lessonIndex = _.random 0, night.length-1
+    lessonIndex = Math.floor Math.random() * night.length
     lesson = night[lessonIndex]
 
     move = @getMove lesson
 
-    instructorIndex = _.random(0, lesson.length-1)
-    instructor = @getInstructorOption lesson, nightIndex, lessonIndex
+    instructorIndex = Math.floor Math.random() * lesson.length
+    instructor = @chooseInstructor lesson, nightIndex, lessonIndex
 
     # console.log 'Night:', nightIndex, 'Lesson:', lessonIndex
     # console.log 'Before:', lesson
@@ -34,8 +30,7 @@ class Mutator
         lesson.splice instructorIndex, 1, instructor
 
     # console.log 'After:', lesson
-
-    new Schedule schedule, true
+    nights
 
   getMove: (lesson) ->
     moves = ['~']
@@ -44,12 +39,14 @@ class Mutator
     if lesson.length == 1
       moves.push '+'
 
-    _.sample moves
+    moves[Math.floor(Math.random() * moves.length)]
 
-  getInstructorOption: (lesson, nightIndex, lessonIndex) ->
-    possibleReplacements = @availability.getInstructors(nightIndex, lessonIndex)
-    _.pull possibleReplacements, lesson...
-    _.sample possibleReplacements
+  chooseInstructor: (lesson, nightIndex, lessonIndex) ->
+    instructors = @availability.getInstructors(nightIndex, lessonIndex)
+    unchosenInstructors = instructors.filter (instructor) ->
+      instructor not in lesson
+
+    unchosenInstructors[Math.floor(Math.random() * unchosenInstructors.length)]
 
 
 module.exports = Mutator

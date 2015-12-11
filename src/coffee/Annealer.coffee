@@ -1,6 +1,3 @@
-Schedule = require './Schedule'
-
-
 class Annealer
   constructor: (@steps=1000, @tau=0) ->
 

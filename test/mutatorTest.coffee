@@ -3,9 +3,9 @@ _ = require 'lodash'
 chai = require 'chai'
 chai.should()
 
-Schedule = require '../src/Schedule'
-Evaluator = require '../src/Evaluator'
-Mutator = require '../src/Mutator'
+Schedule = require '../src/coffee/Schedule'
+Evaluator = require '../src/coffee/Evaluator'
+Mutator = require '../src/coffee/Mutator'
 
 alice = 'alice'
 bob = 'bob'
@@ -26,12 +26,12 @@ describe 'Mutator instance', ->
   it 'should not suggest an instructor already in the lesson', ->
     mutator = new Mutator new Schedule [[[alice, bob, charlie, david]]]
     for i in [1..100]
-      mutator.getInstructorOption([alice], 0, 0).should.not.equal alice
+      mutator.chooseInstructor([alice], 0, 0).should.not.equal alice
 
   it 'should mutate the input schedule', ->
     availability = new Schedule [[[alice, bob, charlie, david]]]
     mutator = new Mutator availability
     for i in [1..100]
       schedule = availability.createRandomSchedule()
-      mutated = mutator.mutate(schedule)
+      mutated = mutator.mutate schedule.nights
       _.isEqual(schedule, ).should.not.be.true

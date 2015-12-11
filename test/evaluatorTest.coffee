@@ -1,8 +1,8 @@
 chai = require 'chai'
 chai.should()
 
-Schedule = require '../src/Schedule'
-Evaluator = require '../src/Evaluator'
+Schedule = require '../src/coffee/Schedule'
+Evaluator = require '../src/coffee/Evaluator'
 
 alice = 'alice'
 bob = 'bob'

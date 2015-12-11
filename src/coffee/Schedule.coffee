@@ -1,12 +1,15 @@
-_ = require 'lodash'
-
 class Schedule
-  constructor: (schedule, sanitize) ->
-    @schedule = schedule.map (night) =>
-      night.map (lesson) =>
+  constructor: (nights, sanitize) ->
+    @nights = nights.map (lessons) =>
+      lessons.map (instructors) =>
         if sanitize
-          lesson = @sanitizeInstructors lesson
-        _.unique lesson
+          instructors = @sanitizeInstructors instructors
+
+        seenInstructors = {}
+        instructors = instructors.filter (instructor) ->
+          firstTime = seenInstructors[instructor]?
+          seenInstructors[instructor] = true
+          return !firstTime
 
   sanitizeInstructors: (instructors) ->
     instructors.map (instructor) =>
@@ -16,7 +19,7 @@ class Schedule
     instructor.toLowerCase().replace('?', '').trim()
 
   forEachNight: (cb) ->
-    for night, i in @schedule
+    for night, i in @nights
       instructors = []
       for lesson in night
         instructors = instructors.concat lesson
@@ -24,12 +27,12 @@ class Schedule
       cb? instructors, i
 
   forEachLesson: (cb) ->
-    for night, nightIndex in @schedule
+    for night, nightIndex in @nights
       for lesson, lessonIndex in night
         cb? lesson, nightIndex, lessonIndex
 
   getInstructors: (nightIndex, lessonIndex, sanitize=true) ->
-    night = @schedule[nightIndex]
+    night = @nights[nightIndex]
 
     if lessonIndex > night.length - 1
       instructors = night[0]
@@ -51,7 +54,7 @@ class Schedule
 
     @forEachLesson (instructors) =>
       for instructor in instructors
-        ifNecessary = _.endsWith instructor, '?'
+        ifNecessary = instructor[instructor.length-1] is '?'
 
         instructor = @sanitizeInstructor instructor
 
@@ -63,24 +66,27 @@ class Schedule
     return counts
 
   createRandomSchedule: (classesPerNight=2, maxInstructors=2) ->
-    schedule = for night in @schedule
+    nights = for night in @nights
       for i in [0..classesPerNight-1]
-        if night.length == classesPerNight
-          availableInstructors = night[i]
-        else
+        if night.length == 1
           availableInstructors = night[0]
+        else
+          availableInstructors = night[i]
 
-        _.sample availableInstructors, _.random 1, maxInstructors
+        numInstructors = 1 + Math.floor Math.random() * (maxInstructors-1)
 
-    new Schedule schedule, true
+        for i in [0..numInstructors-1]
+          availableInstructors[Math.floor Math.random() * availableInstructors.length]
+
+    new Schedule nights, true
 
   toString: ->
-    string = @schedule.map (night, i) ->
-      lessons = night.map (lesson, j) ->
-        "  #{j}: #{lesson.join(' and ')}"
+    nights = @nights.map (lessons, i) ->
+      lessons = lessons.map (instructors, j) ->
+        "  #{j}: #{instructors.join(' and ')}"
       lessons.unshift "Night #{i}"
       return lessons.join '\n'
-    return string.join '\n'
+    return nights.join '\n'
 
 
 module.exports = Schedule

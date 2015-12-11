@@ -1,10 +1,10 @@
 chai = require 'chai'
 chai.should()
 
-Schedule = require '../src/Schedule'
-Evaluator = require '../src/Evaluator'
-Mutator = require '../src/Mutator'
-Annealer = require '../src/Annealer'
+Schedule = require '../src/coffee/Schedule'
+Evaluator = require '../src/coffee/Evaluator'
+Mutator = require '../src/coffee/Mutator'
+Annealer = require '../src/coffee/Annealer'
 
 availability = new Schedule [
   [["Victor Lane?", "Paul Mandel", "Brandon Istenes", "Reeva Bradley?", "Brandi Hoberland"]],
@@ -28,16 +28,20 @@ describe 'Annealer instance', ->
     initialSchedule = availability.createRandomSchedule()
 
     bestSchedule = annealer.anneal initialSchedule, (schedule) ->
-      mutator.mutate schedule
+      copy = new Schedule(schedule.nights)
+      mutatedSchedule = mutator.mutate copy.nights
+      new Schedule mutatedSchedule, true
     , (schedule) ->
       evaluator.getCost schedule, availability
 
     console.log bestSchedule.toString()
 
-    evaluator.getCost bestSchedule, availability, true
+    costBreakdown = evaluator.getCost bestSchedule, availability, true
+
+    console.log JSON.stringify costBreakdown, null, true
 
     actualCounts = bestSchedule.instructorCounts()
     desiredCounts = evaluator.getDesiredCounts bestSchedule, availability
 
     for instructor, count of desiredCounts
-      console.log instructor, count, actualCounts[instructor]
+      console.log instructor, count, actualCounts[instructor] or 0
