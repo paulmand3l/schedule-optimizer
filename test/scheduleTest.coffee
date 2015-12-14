@@ -5,6 +5,8 @@ Schedule = require '../src/coffee/Schedule'
 
 alice = 'alice'
 Alice = 'Alice'
+alicesmith = 'alice smith'
+AliceSmith = 'Alice Smith'
 alice_ = 'alice '
 aliceq = 'alice?'
 bob = 'bob'
@@ -15,6 +17,11 @@ describe 'Schedule instance', ->
   it 'should lowercase instructors', ->
     schedule = new Schedule [[[Alice]]], true
     schedule.nights[0][0][0].should.equal alice
+
+  it 'should capitalize correctly', ->
+    schedule = new Schedule [[[alicesmith]]], true
+    schedule = schedule.capitalize()
+    schedule.nights[0][0][0].should.equal AliceSmith
 
   it 'should trim whitespace from instructors', ->
     schedule = new Schedule [[[alice_]]], true

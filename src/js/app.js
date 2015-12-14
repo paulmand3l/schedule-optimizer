@@ -167,7 +167,7 @@ Evaluator = (function() {
   };
 
   Evaluator.prototype.doublesCost = function(schedule) {
-    var cost, inAll, instructor, instructors, k, l, len, len1, len2, lesson, m, night, ref;
+    var cost, inAll, instructor, instructors, k, l, len, len1, len2, lesson, n, night, ref;
     cost = 0;
     ref = schedule.nights;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -177,8 +177,8 @@ Evaluator = (function() {
         lesson = night[l];
         instructors = instructors.concat(lesson);
       }
-      for (m = 0, len2 = instructors.length; m < len2; m++) {
-        instructor = instructors[m];
+      for (n = 0, len2 = instructors.length; n < len2; n++) {
+        instructor = instructors[n];
         inAll = night.every((function(_this) {
           return function(lesson) {
             return indexOf.call(lesson, instructor) >= 0;
@@ -313,6 +313,39 @@ Schedule = (function() {
     return instructor.toLowerCase().replace('?', '').trim();
   };
 
+  Schedule.prototype.capitalize = function() {
+    var instructor, lesson, night, nights;
+    nights = (function() {
+      var k, len, ref, results;
+      ref = this.nights;
+      results = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        night = ref[k];
+        results.push((function() {
+          var l, len1, results1;
+          results1 = [];
+          for (l = 0, len1 = night.length; l < len1; l++) {
+            lesson = night[l];
+            results1.push((function() {
+              var len2, n, results2;
+              results2 = [];
+              for (n = 0, len2 = lesson.length; n < len2; n++) {
+                instructor = lesson[n];
+                results2.push(instructor.replace(/(^|\s)([a-z])/g, function(m, p1, p2) {
+                  return p1 + p2.toUpperCase();
+                }));
+              }
+              return results2;
+            })());
+          }
+          return results1;
+        })());
+      }
+      return results;
+    }).call(this);
+    return new Schedule(nights);
+  };
+
   Schedule.prototype.forEachNight = function(cb) {
     var i, instructors, k, l, len, len1, lesson, night, ref, results;
     ref = this.nights;
@@ -422,9 +455,9 @@ Schedule = (function() {
             }
             numInstructors = 1 + Math.floor(Math.random() * (maxInstructors - 1));
             results1.push((function() {
-              var m, ref2, results2;
+              var n, ref2, results2;
               results2 = [];
-              for (i = m = 0, ref2 = numInstructors - 1; 0 <= ref2 ? m <= ref2 : m >= ref2; i = 0 <= ref2 ? ++m : --m) {
+              for (i = n = 0, ref2 = numInstructors - 1; 0 <= ref2 ? n <= ref2 : n >= ref2; i = 0 <= ref2 ? ++n : --n) {
                 results2.push(availableInstructors[Math.floor(Math.random() * availableInstructors.length)]);
               }
               return results2;

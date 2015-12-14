@@ -18,6 +18,15 @@ class Schedule
   sanitizeInstructor: (instructor) ->
     instructor.toLowerCase().replace('?', '').trim()
 
+  capitalize: ->
+    nights = for night in @nights
+      for lesson in night
+        for instructor in lesson
+          instructor.replace /(^|\s)([a-z])/g, (m, p1, p2) ->
+            p1+p2.toUpperCase()
+
+    return new Schedule nights
+
   forEachNight: (cb) ->
     for night, i in @nights
       instructors = []
